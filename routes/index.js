@@ -1,4 +1,5 @@
 const express = require('express');
+const userRoutes = require('./userRoutes');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 
@@ -11,7 +12,8 @@ router.post("/jwt", (req, res) => {
     res.json(token);
   });
 
-
+// Use individual route files
+router.use("/users", userRoutes);
 
 
 module.exports = router;
