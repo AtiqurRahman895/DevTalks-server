@@ -51,4 +51,16 @@ router.get("/questionsCount", async (req, res) => {
   }
 });
 
+router.get("/question/:_id", async (req, res) => {
+  let _id = new ObjectId(req.params._id);
+
+  try {
+    const result =await questions.findOne({_id})
+    res.status(200).json(result)
+  } catch (error) {
+    console.error(`Failed to find question with the _id of ${req.params._id} : ${error}`);
+    res.status(500).send("Failed to find question.");
+  }
+});
+
 module.exports = router;
