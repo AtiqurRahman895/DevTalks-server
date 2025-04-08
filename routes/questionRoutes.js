@@ -16,7 +16,6 @@ questions.createIndex(
 
 router.post("/creatQuestion", verifyToken, isUserOnDB, async (req, res) => {
   const credentials = req.body;
-
   try {
     const result = await questions.insertOne(credentials)
     console.log(`A question was inserted with the _id: ${result.insertedId}`);
@@ -28,10 +27,17 @@ router.post("/creatQuestion", verifyToken, isUserOnDB, async (req, res) => {
 });
 
 router.get("/questions", async (req, res) => {
-  let { query={},skip="0", limit="0", sort={} } = req.query;
+  let { query={},skip="0", limit="0", sort={}, asker="" } = req.query;
+  if(asker){
+    query={asker}
+  }else{
+    query={}
+  }
 
+  console.log(query)
   try {
     const result =await questions.find(query).skip(Number(skip)).limit(Number(limit)).sort(sort).toArray()
+    console.log(result)
     res.status(200).json(result)
   } catch (error) {
     console.error(`Failed to find questions: ${error}`);
