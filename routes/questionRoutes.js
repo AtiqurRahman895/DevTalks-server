@@ -27,9 +27,9 @@ router.post("/creatQuestion", verifyToken, isUserOnDB, async (req, res) => {
 });
 
 router.get("/questions", async (req, res) => {
-  let { query={},skip="0", limit="0", sort={}, asker="" } = req.query;
-  if(asker){
-    query={asker}
+  let { query={},skip="0", limit="0", sort={}, email="" } = req.query;
+  if(email){
+    query={askerEmail: email}
   }else{
     query={}
   }
