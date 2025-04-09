@@ -46,7 +46,6 @@ router.get("/profile/:name",async (req, res) => {
       return res.status(400).json({ error: "User not found" });
     }
     const result = await users.findOne({ name: userName })
-    console.log(result)
     res.status(200).json(result)
   } catch (error) {
     console.error(`Failed to find user: ${error}`);

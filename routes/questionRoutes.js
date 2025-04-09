@@ -33,8 +33,6 @@ router.get("/questions", async (req, res) => {
   }else{
     query={}
   }
-
-  console.log(query)
   try {
     const result =await questions.find(query).skip(Number(skip)).limit(Number(limit)).sort(sort).toArray()
     console.log(result)
