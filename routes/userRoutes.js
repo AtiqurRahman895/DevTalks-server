@@ -59,6 +59,7 @@ router.put("/user/:email", async (req, res) => {
   const email = req.params.email
   const userDetails = req.body
   const filter = { email: email }
+  console.log(filter)
 
   const allowedFields = [
     "name",
@@ -72,6 +73,7 @@ router.put("/user/:email", async (req, res) => {
     "linkedinLink",
     "facebookName",
     "facebookLink",
+    "coverImage"
   ];
   const updateField = {};
   for (const key of allowedFields) {
@@ -85,11 +87,11 @@ router.put("/user/:email", async (req, res) => {
     $set: updateField,
   };
 
+
   const options = { upsert: true };
   try {
     const result = await users.updateOne(filter, updatedDoc, options)
-    // console.log(result)
-    // const user = await users.findOne({email})
+
 
     res.status(200).json(result)
 
