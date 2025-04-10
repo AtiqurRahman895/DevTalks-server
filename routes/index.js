@@ -2,6 +2,7 @@ const express = require('express');
 const userRoutes = require('./userRoutes');
 const questionRoutes = require('./questionRoutes');
 const responseRoutes = require('./responseRoutes');
+const badgesRoutes = require('./badgesRoutes');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 
@@ -18,6 +19,7 @@ router.post("/jwt", (req, res) => {
 router.use("/users", userRoutes);
 router.use("/questions", questionRoutes);
 router.use("/responses", responseRoutes);
+router.use("/badges", badgesRoutes);
 
 
 module.exports = router;
