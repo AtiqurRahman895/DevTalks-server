@@ -38,14 +38,15 @@ router.get("/user/:email", async (req, res) => {
 })
 
 // get data for profile
-router.get("/profile/:name",async (req, res) => {
-  const userName = req.params.name;
-  // console.log(userName)
+router.get("/profile/:email", async (req, res) => {
+  const userEmail = req.params.email;
+
   try {
-    if (!userName || userName.trim() === "") {
+    if (!userEmail || userEmail.trim() === "") {
       return res.status(400).json({ error: "User not found" });
     }
-    const result = await users.findOne({ name: userName })
+    const result = await users.findOne({ email: userEmail })
+    // console.log(result)
     res.status(200).json(result)
   } catch (error) {
     console.error(`Failed to find user: ${error}`);
@@ -73,7 +74,8 @@ router.put("/user/:email", async (req, res) => {
     "linkedinLink",
     "facebookName",
     "facebookLink",
-    "coverImage"
+    "coverImage",
+    "photoURL"
   ];
   const updateField = {};
   for (const key of allowedFields) {
