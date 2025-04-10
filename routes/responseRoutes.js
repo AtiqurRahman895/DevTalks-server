@@ -34,13 +34,14 @@ router.get("/responses", async (req, res) => {
   }
 });
 
-router.get("/response/:email", async(req, res)=>{
-  const email = req.params.email;
+router.get("/response", async(req, res)=>{
+  const email = req.query.email;
   // console.log(email)
   let query={}
   if(email){
     query = { responderEmail: email, responseType:"answer"}
   }
+
   try {
     const result = await responses.find(query).toArray()
     res.status(200).json(result)

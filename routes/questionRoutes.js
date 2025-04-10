@@ -35,7 +35,6 @@ router.get("/questions", async (req, res) => {
   }
   try {
     const result =await questions.find(query).skip(Number(skip)).limit(Number(limit)).sort(sort).toArray()
-    console.log(result)
     res.status(200).json(result)
   } catch (error) {
     console.error(`Failed to find questions: ${error}`);

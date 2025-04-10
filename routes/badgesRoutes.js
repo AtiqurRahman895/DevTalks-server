@@ -7,10 +7,9 @@ const router = express.Router();
 const questions = client.db("DevTalks").collection("Questions");
 const answers = client.db("DevTalks").collection("Responses");
 
-router.get("/badge/:email", async (req, res) => {
+router.get("/badge", async (req, res) => {
     try {
-      const email = req.params.email;
-      const query = { email };
+      const email = req.query.email;
   
       // Count documents by email
       const questionCount = await questions.countDocuments({askerEmail: email});
