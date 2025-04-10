@@ -16,7 +16,7 @@ const isUserOnDB = async (req, res, next) => {
 
       try {
         const USER = await users.findOne({ email, role });
-        // console.log(!USER)
+        console.log(USER)
         if (!USER) {
           return res.status(403).send({ message: "Forbidden Access!" });
         }
