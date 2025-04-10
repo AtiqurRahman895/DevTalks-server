@@ -23,7 +23,7 @@ router.post("/creatResponse", verifyToken, isUserOnDB, async (req, res) => {
 });
 
 router.get("/responses", async (req, res) => {
-  let { query={},skip="0", limit="0", sort={} } = req.query;
+  let { query={},skip="0", limit="0", sort={}, email="" } = req.query;
 
   try {
     const result =await responses.find(query).skip(Number(skip)).limit(Number(limit)).sort(sort).toArray()
@@ -33,5 +33,21 @@ router.get("/responses", async (req, res) => {
     res.status(500).send("Failed to find responses.");
   }
 });
+
+router.get("/response/:email", async(req, res)=>{
+  const email = req.params.email;
+  // console.log(email)
+  let query={}
+  if(email){
+    query = { responderEmail: email, responseType:"answer"}
+  }
+  try {
+    const result = await responses.find(query).toArray()
+    res.status(200).json(result)
+  } catch (error) {
+    console.error(`Failed to find responses: ${error}`);
+    res.status(500).send("Failed to find responses.");
+  }
+})
 
 module.exports = router;
