@@ -10,13 +10,14 @@ const users = client.db("DevTalks").collection("Users");
 // Add a new user
 router.post("/addUser", async (req, res) => {
   const { name, photoURL, email} = req.body;
+  console.log()
   const role = "user"
   try {
     const userFound = await users.findOne({ email });
     if (userFound) {
       return res.status(200).send("User found");
     }
-    const result = await users.insertOne({ name, photoURL, email, role, uId });
+    const result = await users.insertOne({ name, photoURL, email, role });
     res.status(201).json({ message: "User Insertion successful", insertedId: result.insertedId });
   } catch (error) {
     console.error(`Failed to insert user: ${error}`);
