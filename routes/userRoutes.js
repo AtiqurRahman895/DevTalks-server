@@ -60,7 +60,6 @@ router.put("/user/:email", async (req, res) => {
   const email = req.params.email
   const userDetails = req.body
   const filter = { email: email }
-  console.log(filter)
 
   const allowedFields = [
     "name",

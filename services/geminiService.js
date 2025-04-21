@@ -10,23 +10,35 @@ const genAi = new GoogleGenAI({ apiKey: process.env.Gemini_Api_Key });
 
 // Constants
 const MODEL_NAME = 'gemini-2.0-flash';
-const DEFAULT_PROMPT = 'Generate a 1-question multiple-choice quiz for beginners on the topic C++. Each question should have: a question, 4 answer options (A, B, C, D), the correct answer (A, B, C, or D), a brief explanation, and a weak point (a concept beginners might miss). Format as JSON.';
 
-router.get('/generate', async (req, res) => {
+// router.get('/generate', async (req, res) => {
+//   try {
+//     // Generate content using the Gemini model
+//     const response = await genAi.models.generateContent({
+//       model: MODEL_NAME,
+//       contents: DEFAULT_PROMPT,
+//     });
+//     const content =response.text;
+//     console.log('Generated Response text:', content);
+//     res.send(content);
+//   } catch (error) {
+//     // Log error and send error response
+//     console.error('Error generating content:', error.message);
+//     res.status(500).send('Failed to generate content');
+//   }
+// });
+
+const callGemini = async (prompt) => {
   try {
-    // Generate content using the Gemini model
     const response = await genAi.models.generateContent({
       model: MODEL_NAME,
-      contents: DEFAULT_PROMPT,
+      contents: prompt,
     });
-    const content =response.text;
-    console.log('Generated Response text:', content);
-    res.send(content);
+    const content = response.text;
+    return content;
   } catch (error) {
-    // Log error and send error response
-    console.error('Error generating content:', error.message);
-    res.status(500).send('Failed to generate content');
+    throw new Error(`Failed to call Gemini API: ${error.message}`);
   }
-});
+};
 
-module.exports = router;
+module.exports = { callGemini };

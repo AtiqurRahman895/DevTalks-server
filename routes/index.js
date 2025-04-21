@@ -4,9 +4,8 @@ const questionRoutes = require('./questionRoutes');
 const responseRoutes = require('./responseRoutes');
 const badgesRoutes = require('./badgesRoutes');
 const voteRoutes = require('./voteRoutes');
-const quizQuestion = require('./quizQuestion');
+const quizRoutes = require('./quizzesRoutes');
 const blogRoutes = require('./blogRoutes');
-const aiRoute  = require('../services/geminiService');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 
@@ -25,9 +24,9 @@ router.use("/questions", questionRoutes);
 router.use("/responses", responseRoutes);
 router.use("/badges", badgesRoutes);
 router.use("/votes", voteRoutes);
-router.use("/quizzes",quizQuestion);
+// router.use("/quizzes",quizQuestion);
 router.use("/blogs", blogRoutes);
-router.use('/api', aiRoute);
+router.use("/quizzes", quizRoutes);
 
 
 
