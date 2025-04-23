@@ -50,24 +50,43 @@ router.get("/response", async(req, res)=>{
     res.status(500).send("Failed to find responses.");
   }
 })
-router.put("/updateVotes/:_id", async (req, res) => {
+
+router.put("/updateResponse/:_id", verifyToken, isUserOnDB, async (req, res) => {
   let _id = new ObjectId(req.params._id);
+  const {email} = req.headers
 
-  let {votes} = req.body;
+  let {responseType, response} = req.body;
 
-  const query = { _id };
+  const query = { _id, responderEmail:email };
   const update={
-    $set: {votes}
+    $set: {responseType, response}
   }
   const options = { upsert: false };
 
   try {
     const result =await responses.updateOne(query,update,options)
-    res.status(200).send(`${result.modifiedCount} response's votes updated`);
+    res.status(200).send(`${result.modifiedCount} response updated`);
   } catch (error) {
-    console.error(`Failed to update votes of response with the _id of ${req.params._id} : ${error}`);
-    res.status(500).send("Failed to update response's votes.");
+    console.error(`Failed to update response with the _id of ${req.params._id} : ${error}`);
+    res.status(500).send("Failed to update response.");
   }
 });
+
+router.delete("/deleteRresponse/:_id", verifyToken, isUserOnDB, async (req, res) => {
+  let _id = new ObjectId(req.params._id);
+  const {email} = req.headers
+
+  const query = { _id, responderEmail:email };
+
+  try {
+    const result =await responses.deleteOne(query)
+    res.status(200).send(`${result.deletedCount} response deleted`);
+  } catch (error) {
+    console.error(`Failed to delete response with the _id of ${req.params._id} : ${error}`);
+    res.status(500).send("Failed to delete response.");
+  }
+});
+
+
 
 module.exports = router;

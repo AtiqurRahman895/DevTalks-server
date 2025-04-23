@@ -66,6 +66,21 @@ router.get("/question/:_id", async (req, res) => {
   }
 });
 
+router.delete("/deleteQuestion/:_id", verifyToken, isUserOnDB, async (req, res) => {
+  let _id = new ObjectId(req.params._id);
+  const {email} = req.headers
+
+  const query = { _id, askerEmail:email };
+
+  try {
+    const result =await questions.deleteOne(query)
+    res.status(200).send(`${result.deletedCount} question deleted`);
+  } catch (error) {
+    console.error(`Failed to delete question with the _id of ${req.params._id} : ${error}`);
+    res.status(500).send("Failed to delete question.");
+  }
+});
+
 router.put("/updateVotes/:_id", async (req, res) => {
   let _id = new ObjectId(req.params._id);
 
