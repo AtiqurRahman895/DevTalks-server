@@ -48,6 +48,7 @@ const generateQuizQuestions = async(quizData) => {
                         {
                             "topic": "${quizData.topic}",
                             "difficulty": "${quizData.difficulty}",
+                            "Date": "${new Date().toISOString()}",
                             "questions": [
                                 {
                                     "id": "1",

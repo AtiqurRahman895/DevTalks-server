@@ -6,6 +6,11 @@ const router = express.Router();
 const quizzes = client.db("DevTalks").collection("Quizzes");
 const users = client.db("DevTalks").collection("Users");
 
+quizzes.createIndex(
+    { "Date": 1 },
+    { expireAfterSeconds: 604800 }
+)
+
 router.post("/create-quiz", async (req, res) => {
     const quizData = req.body;
 
@@ -13,7 +18,6 @@ router.post("/create-quiz", async (req, res) => {
     if (!quizData.email || !quizData.topic) {
         return res.status(400).json({ error: 'Email and topic are required' });
     }
-
 
     //!Check if user exists
     const user = await users.findOne({ email: quizData.email });
@@ -25,6 +29,7 @@ router.post("/create-quiz", async (req, res) => {
     //!check if the quiz is available for user or not
     const result = isQuizAvailableForUser(user.lastQuizDate)
     if (result && result.status === "success") {
+        console.log(quizzes)
         return res.status(400).json({
             response: {
                 error: `No quiz available today. Come back in ${result.daysRemaining} day(s).`,
@@ -37,20 +42,21 @@ router.post("/create-quiz", async (req, res) => {
     const cheekQuizOnDB = await quizzes.findOne({ topic: quizData.topic })
     //if the quiz is available in the db
     if (cheekQuizOnDB) {
+        console.log("already question: ", cheekQuizOnDB)
         return res.send(cheekQuizOnDB)
     }
 
 
     //!generate quiz with the help of ai
     const createQuizResponse = await generateQuizQuestions(quizData);
-    if(createQuizResponse){
+    if (createQuizResponse) {
         const insertDateInUserDB = users.updateOne(
-            {email:quizData.email},
+            { email: quizData.email },
             { $set: { lastQuizDate: new Date().toISOString() } },
-            { upsert: true}
+            { upsert: true }
         )
         const QuizSaveInDB = await quizzes.insertOne(createQuizResponse)
-        console.log(QuizSaveInDB)
+        console.log("Quiz with ai",QuizSaveInDB)
         res.send({
             quizSaved: QuizSaveInDB,
             userUpdated: insertDateInUserDB
