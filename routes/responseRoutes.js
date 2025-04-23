@@ -87,6 +87,24 @@ router.delete("/deleteRresponse/:_id", verifyToken, isUserOnDB, async (req, res)
   }
 });
 
+router.put("/updateVotes/:_id", async (req, res) => {
+  let _id = new ObjectId(req.params._id);
 
+  let {votes} = req.body;
+
+  const query = { _id };
+  const update={
+    $set: {votes}
+  }
+  const options = { upsert: false };
+
+  try {
+    const result =await responses.updateOne(query,update,options)
+    res.status(200).send(`${result.modifiedCount} response's votes updated`);
+  } catch (error) {
+    console.error(`Failed to update votes of response with the _id of ${req.params._id} : ${error}`);
+    res.status(500).send("Failed to update response's votes.");
+  }
+});
 
 module.exports = router;

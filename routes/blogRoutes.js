@@ -61,4 +61,19 @@ router.get("/blog/:_id", async (req, res) => {
   }
 });
 
+router.get("/findBlogToUpdate/:_id", verifyToken, isUserOnDB, isAdmin, async (req, res) => {
+  let _id = new ObjectId(req.params._id);
+  const {email} = req.headers
+
+  const query = { _id, authorEmail:email };
+
+  try {
+    const result =await blogs.findOne(query)
+    res.status(200).json(result)
+  } catch (error) {
+    console.error(`Failed to find blog with the _id of ${req.params._id} : ${error}`);
+    res.status(500).send("Failed to find blog.");
+  }
+});
+
 module.exports = router;
