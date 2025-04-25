@@ -26,16 +26,15 @@ router.post("/create-quiz", async (req, res) => {
     }
 
 
-    //!check if the quiz is available for user or not
-    const result = isQuizAvailableForUser(user.lastQuizDate)
-    if (result && result.status === "success") {
-        console.log(quizzes)
-        return res.status(400).json({
-            response: {
-                error: `No quiz available today. Come back in ${result.daysRemaining} day(s).`,
-            },
-        });
-    }
+    // //!check if the quiz is available for user or not
+    // const result = isQuizAvailableForUser(user.lastQuizDate)
+    // if (result && result.status === "success") {
+    //     return res.status(400).json({
+    //         response: {
+    //             error: `No quiz available today. Come back in ${result.daysRemaining} day(s).`,
+    //         },
+    //     });
+    // }
 
 
     //!cheek if that the quiz is available or not

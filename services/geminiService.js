@@ -11,23 +11,6 @@ const genAi = new GoogleGenAI({ apiKey: process.env.Gemini_Api_Key });
 // Constants
 const MODEL_NAME = 'gemini-2.0-flash';
 
-// router.get('/generate', async (req, res) => {
-//   try {
-//     // Generate content using the Gemini model
-//     const response = await genAi.models.generateContent({
-//       model: MODEL_NAME,
-//       contents: DEFAULT_PROMPT,
-//     });
-//     const content =response.text;
-//     console.log('Generated Response text:', content);
-//     res.send(content);
-//   } catch (error) {
-//     // Log error and send error response
-//     console.error('Error generating content:', error.message);
-//     res.status(500).send('Failed to generate content');
-//   }
-// });
-
 const callGemini = async (prompt) => {
   try {
     const response = await genAi.models.generateContent({
