@@ -7,6 +7,7 @@ const voteRoutes = require('./voteRoutes');
 const quizRoutes = require('./quizzesRoutes');
 const quizQuestion = require('./quizQuestion');
 const blogRoutes = require('./blogRoutes');
+const bookmarkRoutes = require('./bookmarkRoutes');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 
@@ -25,10 +26,10 @@ router.use("/questions", questionRoutes);
 router.use("/responses", responseRoutes);
 router.use("/badges", badgesRoutes);
 router.use("/votes", voteRoutes);
-router.use("/quizzes",quizQuestion);
+// router.use("/quizzes",quizQuestion);
 router.use("/blogs", blogRoutes);
 router.use("/quizzes", quizRoutes);
-
+router.use("/bookmarks", bookmarkRoutes);
 
 
 module.exports = router;

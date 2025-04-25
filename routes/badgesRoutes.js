@@ -14,7 +14,7 @@ router.get("/badge", async (req, res) => {
       // Count documents by email
       const questionCount = await questions.countDocuments({askerEmail: email});
       const answerCount = await answers.countDocuments({responderEmail: email, responseType:"answer"});
-        console.log(answerCount)
+
       const earnedBadges = [];
   
       if (questionCount >= 1) {

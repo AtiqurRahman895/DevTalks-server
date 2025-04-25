@@ -61,4 +61,25 @@ router.get("/blog/:_id", async (req, res) => {
   }
 });
 
+router.put("/updateBlog/:_id", verifyToken, isUserOnDB, isAdmin, async (req, res) => {
+  let _id = new ObjectId(req.params._id);
+  const {email} = req.headers
+
+  let {title, shortDescription, tags, image, longDescription} = req.body;
+
+  const query = { _id, authorEmail:email };
+  const update={
+    $set: {title, shortDescription, tags, image, longDescription}
+  }
+  const options = { upsert: false };
+
+  try {
+    const result =await blogs.updateOne(query,update,options)
+    res.status(200).send(`${result.modifiedCount} blog updated`);
+  } catch (error) {
+    console.error(`Failed to update blog with the _id of ${req.params._id} : ${error}`);
+    res.status(500).send("Failed to update blog.");
+  }
+});
+
 module.exports = router;
