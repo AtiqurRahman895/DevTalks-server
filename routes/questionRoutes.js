@@ -18,6 +18,26 @@ questions.createIndex(
 router.post("/creatQuestion", verifyToken, isUserOnDB, async (req, res) => {
   let credentials = req.body;
   try {
+    const response = await axios.post(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        model: "llama3-70b-8192",
+        messages: [{ role: "user", content: `Give of response of this question so that this response can be Rendered dangerouslySetInnerHTML in the frontend. Don't need use "Here is the response:" or dangerouslySetInnerHTML stuff, class, h1, h2, h3, a tags name in your response itself. You can add p, span, li, ul, ol, b, h4, h5, h6, em, s, blockquote, hr etc tags. Use <code> for inline code, and wrap all code blocks in: <pre class='code-block'><code>...</code></pre>.
+Do not include any UI elements, JSX, or extra buttons. Question: ${credentials.question}`}],
+        temperature: 0.7,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+        },
+      }
+    );
+
+    const aiResponse = response.data.choices[0].message.content;
+
+    credentials={...credentials,aiResponse}
+
     const result = await questions.insertOne(credentials)
     console.log(`A question was inserted with the _id: ${result.insertedId}`);
     res.status(201).send(`question added`);
