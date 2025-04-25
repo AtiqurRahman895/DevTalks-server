@@ -3,6 +3,7 @@ const { client } = require("../config/db");
 const { isUserOnDB } = require("../middlewares/roleMiddleware");
 const { verifyToken } = require("../middlewares/tokenMiddleware");
 const { ObjectId } = require('mongodb');
+const { default: axios } = require('axios');
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ questions.createIndex(
 
 
 router.post("/creatQuestion", verifyToken, isUserOnDB, async (req, res) => {
-  const credentials = req.body;
+  let credentials = req.body;
   try {
     const result = await questions.insertOne(credentials)
     console.log(`A question was inserted with the _id: ${result.insertedId}`);
@@ -27,12 +28,8 @@ router.post("/creatQuestion", verifyToken, isUserOnDB, async (req, res) => {
 });
 
 router.get("/questions", async (req, res) => {
-  let { query={},skip="0", limit="0", sort={}, email="" } = req.query;
-  if(email){
-    query={askerEmail: email}
-  }else{
-    query={}
-  }
+  let { query={},skip="0", limit="0", sort={} } = req.query;
+
   try {
     const result =await questions.find(query).skip(Number(skip)).limit(Number(limit)).sort(sort).toArray()
     res.status(200).json(result)
@@ -78,6 +75,27 @@ router.delete("/deleteQuestion/:_id", verifyToken, isUserOnDB, async (req, res) 
   } catch (error) {
     console.error(`Failed to delete question with the _id of ${req.params._id} : ${error}`);
     res.status(500).send("Failed to delete question.");
+  }
+});
+
+router.put("/updateQuestion/:_id", verifyToken, isUserOnDB, async (req, res) => {
+  let _id = new ObjectId(req.params._id);
+  const {email} = req.headers
+
+  let {title, question, tags} = req.body;
+
+  const query = { _id, askerEmail:email };
+  const update={
+    $set: {title, question, tags}
+  }
+  const options = { upsert: false };
+
+  try {
+    const result =await questions.updateOne(query,update,options)
+    res.status(200).send(`${result.modifiedCount} question updated`);
+  } catch (error) {
+    console.error(`Failed to update question with the _id of ${req.params._id} : ${error}`);
+    res.status(500).send("Failed to update question.");
   }
 });
 

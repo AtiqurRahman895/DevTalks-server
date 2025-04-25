@@ -107,4 +107,33 @@ router.put("/updateVotes/:_id", async (req, res) => {
   }
 });
 
+// router.post("/getAiResponse", async (req, res) => {
+//   const { prompt } = req.body;
+
+//   try {
+//     const response = await axios.post(
+//       "https://api.groq.com/openai/v1/chat/completions",
+//       {
+//         model: "llama3-70b-8192",
+//         messages: [{ role: "user", content: `Give of response of this question so that this response can be Rendered dangerouslySetInnerHTML in the frontend. Don't need use "Here is the response:" or dangerouslySetInnerHTML stuff, class, h1, h2, h3, a tags name in your response itself.  Use <code> for inline code, and wrap all code blocks in: <pre class='code-block'><code>...</code></pre>.
+// Do not include any UI elements, JSX, or extra buttons. Question: ${prompt}`}],
+//         temperature: 0.7,
+//       },
+//       {
+//         headers: {
+//           "Content-Type": "application/json",
+//           "Authorization": `Bearer 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`,
+//         },
+//       }
+//     );
+
+//     const aiResponse = response.data.choices[0].message.content;
+//     console.log(answer)
+//     res.json(answer);
+//   } catch (err) {
+//     console.error(err.response?.data || err.message);
+//     res.status(500).json({ error: "Failed to get Ai response from Groq." });
+//   }
+// });
+
 module.exports = router;
