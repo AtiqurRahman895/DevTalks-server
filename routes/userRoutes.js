@@ -32,6 +32,18 @@ router.post("/addUser", async (req, res) => {
   }
 });
 
+router.get("/usersCount", async (req, res) => {
+  let { query={} } = req.query;
+
+  try {
+    const result =await users.countDocuments(query)
+    res.status(200).json(result)
+  } catch (error) {
+    console.error(`Failed to count users: ${error}`);
+    res.status(500).send("Failed to count users.");
+  }
+});
+
 // get specific user
 router.get("/user/:email", async (req, res) => {
   const email = req.params.email;

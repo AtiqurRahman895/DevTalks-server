@@ -48,10 +48,11 @@ Do not include any UI elements, JSX, or extra buttons. Question: ${credentials.q
 });
 
 router.get("/questions", async (req, res) => {
-  let { query={},skip="0", limit="0", sort={} } = req.query;
+  let { query={},skip="0", limit="0", sort={}, projection = {} } = req.query;
+  projection = typeof projection === "string" ? JSON.parse(projection) : projection;
 
   try {
-    const result =await questions.find(query).skip(Number(skip)).limit(Number(limit)).sort(sort).toArray()
+    const result =await questions.find(query, {projection}).skip(Number(skip)).limit(Number(limit)).sort(sort).toArray()
     res.status(200).json(result)
   } catch (error) {
     console.error(`Failed to find questions: ${error}`);
@@ -136,6 +137,24 @@ router.put("/updateVotes/:_id", async (req, res) => {
   } catch (error) {
     console.error(`Failed to update votes of question with the _id of ${req.params._id} : ${error}`);
     res.status(500).send("Failed to update question's votes.");
+  }
+});
+
+router.put("/updateQuestionViews/:_id", async (req, res) => {
+  let _id = new ObjectId(req.params._id);
+
+  const query = { _id };
+  const update={
+    $push: { views: { visitedAt: Date.now() } } 
+  }
+  const options = { upsert: false };
+
+  try {
+    const result =await questions.updateOne(query,update,options)
+    res.status(200).send(`${result.modifiedCount} question views updated`);
+  } catch (error) {
+    console.error(`Failed to update views of a question with the _id of ${req.params._id} : ${error}`);
+    res.status(500).send("Failed to update question views.");
   }
 });
 

@@ -26,10 +26,11 @@ router.post("/creatBlog", verifyToken, isUserOnDB, isAdmin, async (req, res) => 
 });
 
 router.get("/blogs", async (req, res) => {
-  let { query={},skip="0", limit="0", sort={} } = req.query;
+  let { query={},skip="0", limit="0", sort={}, projection={} } = req.query;
+  projection = typeof projection === "string" ? JSON.parse(projection) : projection;
 
   try {
-    const result =await blogs.find(query).skip(Number(skip)).limit(Number(limit)).sort(sort).toArray()
+    const result =await blogs.find(query, {projection}).skip(Number(skip)).limit(Number(limit)).sort(sort).toArray()
     res.status(200).json(result)
   } catch (error) {
     console.error(`Failed to find blogs: ${error}`);
@@ -79,6 +80,24 @@ router.put("/updateBlog/:_id", verifyToken, isUserOnDB, isAdmin, async (req, res
   } catch (error) {
     console.error(`Failed to update blog with the _id of ${req.params._id} : ${error}`);
     res.status(500).send("Failed to update blog.");
+  }
+});
+
+router.put("/updateBlogViews/:_id", async (req, res) => {
+  let _id = new ObjectId(req.params._id);
+
+  const query = { _id };
+  const update={
+    $push: { views: { visitedAt: Date.now() } } 
+  }
+  const options = { upsert: false };
+
+  try {
+    const result =await blogs.updateOne(query,update,options)
+    res.status(200).send(`${result.modifiedCount} blog views updated`);
+  } catch (error) {
+    console.error(`Failed to update views of a blog with the _id of ${req.params._id} : ${error}`);
+    res.status(500).send("Failed to update blog views.");
   }
 });
 
