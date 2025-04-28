@@ -48,10 +48,11 @@ Do not include any UI elements, JSX, or extra buttons. Question: ${credentials.q
 });
 
 router.get("/questions", async (req, res) => {
-  let { query={},skip="0", limit="0", sort={} } = req.query;
+  let { query={},skip="0", limit="0", sort={}, projection = {} } = req.query;
+  projection = typeof projection === "string" ? JSON.parse(projection) : projection;
 
   try {
-    const result =await questions.find(query).skip(Number(skip)).limit(Number(limit)).sort(sort).toArray()
+    const result =await questions.find(query, {projection}).skip(Number(skip)).limit(Number(limit)).sort(sort).toArray()
     res.status(200).json(result)
   } catch (error) {
     console.error(`Failed to find questions: ${error}`);
