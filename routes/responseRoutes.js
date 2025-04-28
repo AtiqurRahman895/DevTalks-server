@@ -122,7 +122,7 @@ router.put("/updateVotes/:_id", async (req, res) => {
 //       {
 //         headers: {
 //           "Content-Type": "application/json",
-//           "Authorization": `Bearer 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`,
+//           "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
 //         },
 //       }
 //     );

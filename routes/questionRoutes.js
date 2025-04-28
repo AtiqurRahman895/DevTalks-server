@@ -139,4 +139,22 @@ router.put("/updateVotes/:_id", async (req, res) => {
   }
 });
 
+router.put("/updateQuestionViews/:_id", async (req, res) => {
+  let _id = new ObjectId(req.params._id);
+
+  const query = { _id };
+  const update={
+    $push: { views: { visitedAt: Date.now() } } 
+  }
+  const options = { upsert: false };
+
+  try {
+    const result =await questions.updateOne(query,update,options)
+    res.status(200).send(`${result.modifiedCount} question views updated`);
+  } catch (error) {
+    console.error(`Failed to update views of a question with the _id of ${req.params._id} : ${error}`);
+    res.status(500).send("Failed to update question views.");
+  }
+});
+
 module.exports = router;
