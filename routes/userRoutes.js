@@ -9,11 +9,6 @@ const router = express.Router();
 const users = client.db("DevTalks").collection("Users");
 const quizzes = client.db("DevTalks").collection("Quizzes");
 
-users.createIndex(
-  { lastQuizDate: 1 },
-  { expireAfterSeconds: 7 * 24 * 60 * 60 }
-);
-
 // Add a new user
 router.post("/addUser", async (req, res) => {
   const { name, photoURL, email} = req.body;
@@ -149,12 +144,14 @@ router.post("/user-answer", async (req, res) => {
   const score = answers.filter((a) => a.isCorrect).length;
   const totalQuestions = userQuiz.questions.length;
 
+  const quizDate = new Date(new Date().toISOString());
+
   //Save to userAnswers
   const userAnswerDoc = {
     quizId,
     topic: userQuiz.topic,
     difficulty: userQuiz.difficulty,
-    quizDate: userQuiz.Date,
+    quizDate,
     answers,
     score,
     totalQuestions
@@ -178,7 +175,7 @@ router.post("/user-answer", async (req, res) => {
     {
       $set: {
         answers: userAnswerDoc,
-        dailyStreak
+        dailyStreak: 0,
       }
     },
     { upsert: true }
