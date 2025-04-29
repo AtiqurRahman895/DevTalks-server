@@ -37,6 +37,24 @@ router.get("/user/:email", async (req, res) => {
   }
 })
 
+
+// all user
+
+router.get('/allUser', async(req,res)=>{
+     
+ 
+   
+  try {
+    const result = await users.find().toArray();
+    res.status(200).json(result)
+  } catch (error) {
+    console.error(`Failed to find user: ${error}`);
+    res.status(500).send("Failed to find user.");
+  }
+
+})
+
+
 // get data for profile
 router.get("/profile/:email", async (req, res) => {
   const userEmail = req.params.email;

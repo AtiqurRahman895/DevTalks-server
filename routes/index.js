@@ -7,7 +7,11 @@ const voteRoutes = require('./voteRoutes');
 const quizQuestion = require('./quizQuestion');
 const blogRoutes = require('./blogRoutes');
 const jwt = require('jsonwebtoken');
+
 const router = express.Router();
+require('./Chat');
+
+
 
 // Generate JWT
 router.post("/jwt", (req, res) => {
@@ -26,6 +30,11 @@ router.use("/badges", badgesRoutes);
 router.use("/votes", voteRoutes);
 router.use("/quizzes",quizQuestion);
 router.use("/blogs", blogRoutes);
+ 
+
+
+
+
 
 
 module.exports = router;
