@@ -134,8 +134,6 @@ router.post("/user-answer", async (req, res) => {
     const userSelect = userAnswer.userSelect.toUpperCase();
     const isCorrect = userSelect === question.correctAnswer;
 
-    console.log(question.question)
-
     return {
       questionId: userAnswer.questionId,
       question: question.question,
@@ -185,24 +183,42 @@ router.post("/user-answer", async (req, res) => {
     },
     { upsert: true }
   );
-
-
-
   res.send(user)
 })
 
 router.post("/user-feedback/:email", async (req, res) => {
-  const email = req.params.email;
-  const user = await users.findOne({ email })
+  try {
+    const email = req.params.email;
 
-  //!ToDo: if user is undefined send error status
-  if (!user) {
-    console.log("not found")
+    // Fetch user by email
+    const user = await users.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Validate user.answers and quizId
+    if (!user.answers || !user.answers.quizId) {
+      return res.status(400).json({ error: "User quiz data not found" });
+    }
+
+    // Fetch the quiz by ID
+    const userQuiz = await quizzes.findOne({ _id: new ObjectId(user.answers.quizId) });
+    if (!userQuiz) {
+      return res.status(404).json({ error: "Quiz not found" });
+    }
+
+    // Generate AI feedback
+    const feedback = await getFeedBackAi(user.answers.answers, userQuiz, user.answers.score);
+    if (!feedback) {
+      return res.status(500).json({ error: "Failed to generate AI feedback" });
+    }
+
+    // Send feedback to client
+    res.status(200).send(feedback);
+  } catch (error) {
+    console.error("Error in getQuizFeedback:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
-  const userQuiz = await quizzes.findOne({ _id: new ObjectId(user.answers.quizId) });
-
-  const feedback = await getFeedBackAi(user.answers.answers, userQuiz, user.answers.score)
-  res.send(feedback)
 
 })
 

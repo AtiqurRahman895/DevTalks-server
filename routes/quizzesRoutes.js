@@ -1,6 +1,7 @@
 const express = require('express');
 const { client } = require('../config/db');
 const { isQuizAvailableForUser, generateQuizQuestions } = require('../Utils/Utils');
+const { ObjectId } = require('mongodb');
 
 const router = express.Router();
 const quizzes = client.db("DevTalks").collection("Quizzes");
@@ -38,10 +39,9 @@ router.post("/create-quiz", async (req, res) => {
 
 
     //!cheek if that the quiz is available or not
-    const cheekQuizOnDB = await quizzes.findOne({ topic: quizData.topic })
+    const cheekQuizOnDB = await quizzes.findOne({ topic: quizData.topic, difficulty:quizData.difficulty })
     //if the quiz is available in the db
     if (cheekQuizOnDB) {
-        console.log("already question: ", cheekQuizOnDB)
         return res.send(cheekQuizOnDB)
     }
 
@@ -55,13 +55,21 @@ router.post("/create-quiz", async (req, res) => {
             { upsert: true }
         )
         const QuizSaveInDB = await quizzes.insertOne(createQuizResponse)
-        console.log("Quiz with ai",QuizSaveInDB)
-        res.send({
-            quizSaved: QuizSaveInDB,
-            userUpdated: insertDateInUserDB
-        });
+
+        if(QuizSaveInDB.insertedId){
+            const findQuiz = await quizzes.findOne({ _id: new ObjectId(QuizSaveInDB.insertedId) })
+            if(findQuiz){
+                return res.send(findQuiz)
+            }
+        }
     }
 })
+
+router.get('/:id', async(req, res) => {
+    const { id } = req.params;
+   const result = await quizzes.findOne({_id: new ObjectId(id)})
+   res.send(result);
+  });
 
 
 
