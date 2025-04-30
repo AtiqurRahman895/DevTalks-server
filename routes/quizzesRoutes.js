@@ -12,12 +12,14 @@ quizzes.createIndex(
 )
 
 router.post("/create-quiz", async (req, res) => {
-    const quizData = req.body;
+    let quizData = req.body;
 
     //!Validate input
     if (!quizData.email || !quizData.topic) {
         return res.status(400).json({ error: 'Email and topic are required' });
     }
+
+    quizData.topic=quizData.topic.trim().toUpperCase()
 
     //!Check if user exists
     const user = await users.findOne({ email: quizData.email });
@@ -41,7 +43,7 @@ router.post("/create-quiz", async (req, res) => {
     const cheekQuizOnDB = await quizzes.findOne({ topic: quizData.topic })
     //if the quiz is available in the db
     if (cheekQuizOnDB) {
-        console.log("already question: ", cheekQuizOnDB)
+        // console.log("already question: ", cheekQuizOnDB)
         return res.send(cheekQuizOnDB)
     }
 
@@ -55,7 +57,7 @@ router.post("/create-quiz", async (req, res) => {
             { upsert: true }
         )
         const QuizSaveInDB = await quizzes.insertOne(createQuizResponse)
-        console.log("Quiz with ai",QuizSaveInDB)
+        // console.log("Quiz with ai",QuizSaveInDB)
         res.send({
             quizSaved: QuizSaveInDB,
             userUpdated: insertDateInUserDB

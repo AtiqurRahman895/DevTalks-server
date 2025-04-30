@@ -29,6 +29,8 @@ const cleanGeminiResponse = (rawText) => {
 
 
 const generateQuizQuestions = async (quizData) => {
+    quizData.topic=quizData.topic.trim().toUpperCase()
+
     try {
         const prompt = `Generate a quiz with 5 multiple-choice questions based on the programming language "${quizData.topic}" and difficulty level "${quizData.difficulty}".
                         Each question should include:

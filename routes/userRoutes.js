@@ -153,7 +153,7 @@ router.post("/user-answer", async (req, res) => {
     throw new Error(`User Not found`);
   }
 
-  const userQuiz = await quizzes.findOne({ _id: new ObjectId(quizId) });
+  let userQuiz = await quizzes.findOne({ _id: new ObjectId(quizId) });
   const answers = userAnswers.map((userAnswer) => {
     const question = userQuiz.questions.find((q) => q.id === userAnswer.questionId);
 
@@ -180,6 +180,8 @@ router.post("/user-answer", async (req, res) => {
   //Calculate score
   const score = answers.filter((a) => a.isCorrect).length;
   const totalQuestions = userQuiz.questions.length;
+
+  userQuiz.topic=userQuiz.topic.trim().toUpperCase()
 
   //Save to userAnswers
   const userAnswerDoc = {
