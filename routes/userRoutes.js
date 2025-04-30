@@ -188,16 +188,16 @@ router.post("/user-answer", async (req, res) => {
   };
 
 
-  const now = new Date();
-  const existingUser = await users.findOne({ email });
-  let dailyStreak = 1;
-  if (existingUser && existingUser.lastQuizDate) {
-    const lastQuiz = new Date(existingUser.answers.quizDate);
-    const daysSinceLastQuiz = (now - lastQuiz) / (1000 * 60 * 60 * 24);
-    if (daysSinceLastQuiz <= 14) {
-      dailyStreak = (existingUser.dailyStreak || 0) + 1; // Increment if within 14 days
-    }
-  }
+  // const now = new Date();
+  // const existingUser = await users.findOne({ email });
+  // let dailyStreak = 1;
+  // if (existingUser && existingUser.lastQuizDate) {
+  //   const lastQuiz = new Date(existingUser.answers.quizDate);
+  //   const daysSinceLastQuiz = (now - lastQuiz) / (1000 * 60 * 60 * 24);
+  //   if (daysSinceLastQuiz <= 14) {
+  //     dailyStreak = (existingUser.dailyStreak || 0) + 1; // Increment if within 14 days
+  //   }
+  // }
 
   // Update users collection
   const result = await users.updateOne(
@@ -205,7 +205,7 @@ router.post("/user-answer", async (req, res) => {
     {
       $set: {
         answers: userAnswerDoc,
-        dailyStreak,
+        // dailyStreak,
       }
     },
     { upsert: true }
