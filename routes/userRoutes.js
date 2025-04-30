@@ -14,11 +14,6 @@ users.createIndex(
 
 const quizzes = client.db("DevTalks").collection("Quizzes");
 
-users.createIndex(
-  { lastQuizDate: 1 },
-  { expireAfterSeconds: 7 * 24 * 60 * 60 }
-);
-
 // Add a new user
 router.post("/addUser", async (req, res) => {
   const { name, photoURL, email} = req.body;
@@ -98,7 +93,6 @@ router.put("/user/:email", async (req, res) => {
   const email = req.params.email
   const userDetails = req.body
   const filter = { email: email }
-  // console.log(filter)
 
   const allowedFields = [
     "name",
@@ -164,8 +158,6 @@ router.post("/user-answer", async (req, res) => {
     const userSelect = userAnswer.userSelect.toUpperCase();
     const isCorrect = userSelect === question.correctAnswer;
 
-    console.log(question.question)
-
     return {
       questionId: userAnswer.questionId,
       question: question.question,
@@ -181,6 +173,7 @@ router.post("/user-answer", async (req, res) => {
   const score = answers.filter((a) => a.isCorrect).length;
   const totalQuestions = userQuiz.questions.length;
 
+  const quizDate = new Date(new Date().toISOString());
   userQuiz.topic=userQuiz.topic.trim().toUpperCase()
 
   //Save to userAnswers
@@ -188,7 +181,7 @@ router.post("/user-answer", async (req, res) => {
     quizId,
     topic: userQuiz.topic,
     difficulty: userQuiz.difficulty,
-    quizDate: userQuiz.Date,
+    quizDate,
     answers,
     score,
     totalQuestions
@@ -199,7 +192,7 @@ router.post("/user-answer", async (req, res) => {
   const existingUser = await users.findOne({ email });
   let dailyStreak = 1;
   if (existingUser && existingUser.lastQuizDate) {
-    const lastQuiz = new Date(existingUser.lastQuizDate);
+    const lastQuiz = new Date(existingUser.answers.quizDate);
     const daysSinceLastQuiz = (now - lastQuiz) / (1000 * 60 * 60 * 24);
     if (daysSinceLastQuiz <= 14) {
       dailyStreak = (existingUser.dailyStreak || 0) + 1; // Increment if within 14 days
@@ -212,29 +205,47 @@ router.post("/user-answer", async (req, res) => {
     {
       $set: {
         answers: userAnswerDoc,
-        dailyStreak
+        dailyStreak,
       }
     },
     { upsert: true }
   );
-
-
-
   res.send(user)
 })
 
 router.post("/user-feedback/:email", async (req, res) => {
-  const email = req.params.email;
-  const user = await users.findOne({ email })
+  try {
+    const email = req.params.email;
 
-  //!ToDo: if user is undefined send error status
-  if (!user) {
-    console.log("not found")
+    // Fetch user by email
+    const user = await users.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Validate user.answers and quizId
+    if (!user.answers || !user.answers.quizId) {
+      return res.status(400).json({ error: "User quiz data not found" });
+    }
+
+    // Fetch the quiz by ID
+    const userQuiz = await quizzes.findOne({ _id: new ObjectId(user.answers.quizId) });
+    if (!userQuiz) {
+      return res.status(404).json({ error: "Quiz not found" });
+    }
+
+    // Generate AI feedback
+    const feedback = await getFeedBackAi(user.answers.answers, userQuiz, user.answers.score);
+    if (!feedback) {
+      return res.status(500).json({ error: "Failed to generate AI feedback" });
+    }
+
+    // Send feedback to client
+    res.status(200).send(feedback);
+  } catch (error) {
+    console.error("Error in getQuizFeedback:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
-  const userQuiz = await quizzes.findOne({ _id: new ObjectId(user.answers.quizId) });
-
-  const feedback = await getFeedBackAi(user.answers.answers, userQuiz, user.answers.score)
-  res.send(feedback)
 
 })
 

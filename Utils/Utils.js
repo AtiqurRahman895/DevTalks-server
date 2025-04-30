@@ -48,8 +48,8 @@ const generateQuizQuestions = async (quizData) => {
 
                         Return the response in the following JSON format (do not use """json""", return direct JSON):
                         {
-                            "topic": "${quizData.topic}",
-                            "difficulty": "${quizData.difficulty}",
+                            "topic": "${quizData.topic.toUpperCase()}",
+                            "difficulty": "${quizData.difficulty.toUpperCase()}",
                             "Date": "${new Date().toISOString()}",
                             "questions": [
                                 {
@@ -80,7 +80,7 @@ const generateQuizQuestions = async (quizData) => {
 const getFeedBackAi = async (answers, quiz, score) => {
     const incorrect = answers.filter((a) => !a.isCorrect);
     const weakPoints = incorrect.map((a) => quiz.questions.find((q) => q.id === a.questionId).weakPoint);
-    const prompt = `Generate feedback for a Java quiz in strict JSON format. The user scored ${score}/5. The quiz has the following incorrect answers and weak points:
+    const prompt = `Generate feedback for a ${quiz?.topic} quiz in strict JSON format. The user scored ${score}/5. The quiz has the following incorrect answers and weak points if there is no weekPoint then give great suggestion:
 
 ${weakPoints}
 
@@ -94,6 +94,7 @@ Instructions:
 - Ensure the response is valid JSON, enclosed in curly braces, with no additional text or backticks.
 - Use the weak points to tailor feedback, focusing on Java syntax, keywords, data types, and program structure.
 - Maintain a supportive, educational tone to encourage the user to keep learning.`;
+
 
     const response = await callGemini(prompt)
     const result = cleanGeminiResponse(response);

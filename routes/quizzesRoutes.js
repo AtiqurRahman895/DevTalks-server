@@ -1,6 +1,7 @@
 const express = require('express');
 const { client } = require('../config/db');
 const { isQuizAvailableForUser, generateQuizQuestions } = require('../Utils/Utils');
+const { ObjectId } = require('mongodb');
 
 const router = express.Router();
 const quizzes = client.db("DevTalks").collection("Quizzes");
@@ -27,20 +28,8 @@ router.post("/create-quiz", async (req, res) => {
         return res.status(400).json({ error: 'User not found' });
     }
 
-
-    // //!check if the quiz is available for user or not
-    // const result = isQuizAvailableForUser(user.lastQuizDate)
-    // if (result && result.status === "success") {
-    //     return res.status(400).json({
-    //         response: {
-    //             error: `No quiz available today. Come back in ${result.daysRemaining} day(s).`,
-    //         },
-    //     });
-    // }
-
-
     //!cheek if that the quiz is available or not
-    const cheekQuizOnDB = await quizzes.findOne({ topic: quizData.topic })
+    const cheekQuizOnDB = await quizzes.findOne({ topic: quizData.topic.toUpperCase(), difficulty:quizData.difficulty.toUpperCase() })
     //if the quiz is available in the db
     if (cheekQuizOnDB) {
         // console.log("already question: ", cheekQuizOnDB)
@@ -57,15 +46,19 @@ router.post("/create-quiz", async (req, res) => {
             { upsert: true }
         )
         const QuizSaveInDB = await quizzes.insertOne(createQuizResponse)
-        // console.log("Quiz with ai",QuizSaveInDB)
-        res.send({
-            quizSaved: QuizSaveInDB,
-            userUpdated: insertDateInUserDB
-        });
+        if(QuizSaveInDB.insertedId){
+            const findQuiz = await quizzes.findOne({ _id: new ObjectId(QuizSaveInDB.insertedId) })
+            if(findQuiz){
+                return res.send(findQuiz)
+            }
+        }
     }
 })
 
-
-
+// router.get('/:id', async(req, res) => {
+//     const { id } = req.params;
+//    const result = await quizzes.findOne({_id: new ObjectId(id)})
+//    res.send(result);
+//   });
 
 module.exports = router;
