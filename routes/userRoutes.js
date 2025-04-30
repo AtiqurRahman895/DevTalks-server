@@ -63,7 +63,6 @@ router.put("/user/:email", async (req, res) => {
   const email = req.params.email
   const userDetails = req.body
   const filter = { email: email }
-  // console.log(filter)
 
   const allowedFields = [
     "name",
@@ -163,7 +162,6 @@ router.post("/user-answer", async (req, res) => {
   let dailyStreak = 1;
   if (existingUser && existingUser.lastQuizDate) {
     const lastQuiz = new Date(existingUser.answers.quizDate);
-    console.log(lastQuiz)
     const daysSinceLastQuiz = (now - lastQuiz) / (1000 * 60 * 60 * 24);
     if (daysSinceLastQuiz <= 14) {
       dailyStreak = (existingUser.dailyStreak || 0) + 1; // Increment if within 14 days
