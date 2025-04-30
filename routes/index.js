@@ -8,6 +8,7 @@ const quizRoutes = require('./quizzesRoutes');
 const quizQuestion = require('./quizQuestion');
 const blogRoutes = require('./blogRoutes');
 const bookmarkRoutes = require('./bookmarkRoutes');
+const trafficRoutes = require('./trafficRoutes');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 
@@ -30,6 +31,7 @@ router.use("/votes", voteRoutes);
 router.use("/blogs", blogRoutes);
 router.use("/quizzes", quizRoutes);
 router.use("/bookmarks", bookmarkRoutes);
+router.use("/traffics", trafficRoutes);
 
 
 module.exports = router;

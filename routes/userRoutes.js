@@ -7,6 +7,11 @@ const { getFeedBackAi } = require('../Utils/Utils');
 
 const router = express.Router();
 const users = client.db("DevTalks").collection("Users");
+users.createIndex(
+  { name: "text", email: "text", role: "text" },
+  { name: "name_text_email_text_role_text" }
+);
+
 const quizzes = client.db("DevTalks").collection("Quizzes");
 
 // Add a new user
@@ -24,6 +29,31 @@ router.post("/addUser", async (req, res) => {
   } catch (error) {
     console.error(`Failed to insert user: ${error}`);
     res.status(500).send("Failed to insert user.");
+  }
+});
+
+router.get("/usersCount", async (req, res) => {
+  let { query={} } = req.query;
+
+  try {
+    const result =await users.countDocuments(query)
+    res.status(200).json(result)
+  } catch (error) {
+    console.error(`Failed to count users: ${error}`);
+    res.status(500).send("Failed to count users.");
+  }
+});
+
+router.get("/users", async (req, res) => {
+  let { query={},skip="0", limit="0", sort={}, projection = {} } = req.query;
+  projection = typeof projection === "string" ? JSON.parse(projection) : projection;
+
+  try {
+    const result =await users.find(query, {projection}).skip(Number(skip)).limit(Number(limit)).sort(sort).toArray()
+    res.status(200).json(result)
+  } catch (error) {
+    console.error(`Failed to find users: ${error}`);
+    res.status(500).send("Failed to find users.");
   }
 });
 
@@ -117,7 +147,7 @@ router.post("/user-answer", async (req, res) => {
     throw new Error(`User Not found`);
   }
 
-  const userQuiz = await quizzes.findOne({ _id: new ObjectId(quizId) });
+  let userQuiz = await quizzes.findOne({ _id: new ObjectId(quizId) });
   const answers = userAnswers.map((userAnswer) => {
     const question = userQuiz.questions.find((q) => q.id === userAnswer.questionId);
 
@@ -144,6 +174,7 @@ router.post("/user-answer", async (req, res) => {
   const totalQuestions = userQuiz.questions.length;
 
   const quizDate = new Date(new Date().toISOString());
+  userQuiz.topic=userQuiz.topic.trim().toUpperCase()
 
   //Save to userAnswers
   const userAnswerDoc = {
