@@ -7,6 +7,11 @@ const { getFeedBackAi } = require('../Utils/Utils');
 
 const router = express.Router();
 const users = client.db("DevTalks").collection("Users");
+users.createIndex(
+  { name: "text", email: "text", role: "text" },
+  { name: "name_text_email_text_role_text" }
+);
+
 const quizzes = client.db("DevTalks").collection("Quizzes");
 
 users.createIndex(
@@ -41,6 +46,19 @@ router.get("/usersCount", async (req, res) => {
   } catch (error) {
     console.error(`Failed to count users: ${error}`);
     res.status(500).send("Failed to count users.");
+  }
+});
+
+router.get("/users", async (req, res) => {
+  let { query={},skip="0", limit="0", sort={}, projection = {} } = req.query;
+  projection = typeof projection === "string" ? JSON.parse(projection) : projection;
+
+  try {
+    const result =await users.find(query, {projection}).skip(Number(skip)).limit(Number(limit)).sort(sort).toArray()
+    res.status(200).json(result)
+  } catch (error) {
+    console.error(`Failed to find users: ${error}`);
+    res.status(500).send("Failed to find users.");
   }
 });
 
