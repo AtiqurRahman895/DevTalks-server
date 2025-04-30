@@ -162,7 +162,8 @@ router.post("/user-answer", async (req, res) => {
   const existingUser = await users.findOne({ email });
   let dailyStreak = 1;
   if (existingUser && existingUser.lastQuizDate) {
-    const lastQuiz = new Date(existingUser.lastQuizDate);
+    const lastQuiz = new Date(existingUser.answers.quizDate);
+    console.log(lastQuiz)
     const daysSinceLastQuiz = (now - lastQuiz) / (1000 * 60 * 60 * 24);
     if (daysSinceLastQuiz <= 14) {
       dailyStreak = (existingUser.dailyStreak || 0) + 1; // Increment if within 14 days
@@ -175,7 +176,7 @@ router.post("/user-answer", async (req, res) => {
     {
       $set: {
         answers: userAnswerDoc,
-        dailyStreak: 0,
+        dailyStreak,
       }
     },
     { upsert: true }
