@@ -46,8 +46,8 @@ const generateQuizQuestions = async (quizData) => {
 
                         Return the response in the following JSON format (do not use """json""", return direct JSON):
                         {
-                            "topic": "${quizData.topic}",
-                            "difficulty": "${quizData.difficulty}",
+                            "topic": "${quizData.topic.toUpperCase()}",
+                            "difficulty": "${quizData.difficulty.toUpperCase()}",
                             "Date": "${new Date().toISOString()}",
                             "questions": [
                                 {

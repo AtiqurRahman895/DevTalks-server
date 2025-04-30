@@ -14,7 +14,6 @@ quizzes.createIndex(
 
 router.post("/create-quiz", async (req, res) => {
     const quizData = req.body;
-
     //!Validate input
     if (!quizData.email || !quizData.topic) {
         return res.status(400).json({ error: 'Email and topic are required' });
@@ -28,18 +27,18 @@ router.post("/create-quiz", async (req, res) => {
 
 
     // //!check if the quiz is available for user or not
-    // const result = isQuizAvailableForUser(user.lastQuizDate)
-    // if (result && result.status === "success") {
-    //     return res.status(400).json({
-    //         response: {
-    //             error: `No quiz available today. Come back in ${result.daysRemaining} day(s).`,
-    //         },
-    //     });
-    // }
+    const result = isQuizAvailableForUser(user.lastQuizDate)
+    if (result && result.status === "success") {
+        return res.status(400).json({
+            response: {
+                error: `No quiz available today. Come back in ${result.daysRemaining} day(s).`,
+            },
+        });
+    }
 
 
     //!cheek if that the quiz is available or not
-    const cheekQuizOnDB = await quizzes.findOne({ topic: quizData.topic, difficulty:quizData.difficulty })
+    const cheekQuizOnDB = await quizzes.findOne({ topic: quizData.topic.toUpperCase(), difficulty:quizData.difficulty.toUpperCase() })
     //if the quiz is available in the db
     if (cheekQuizOnDB) {
         return res.send(cheekQuizOnDB)
