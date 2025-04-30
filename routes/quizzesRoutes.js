@@ -40,9 +40,8 @@ router.post("/create-quiz", async (req, res) => {
     //!generate quiz with the help of ai
     const createQuizResponse = await generateQuizQuestions(quizData);
     if (createQuizResponse) {
-        const insertDateInUserDB = users.updateOne(
+        users.updateOne(
             { email: quizData.email },
-            { $set: { lastQuizDate: new Date().toISOString() } },
             { upsert: true }
         )
         const QuizSaveInDB = await quizzes.insertOne(createQuizResponse)
