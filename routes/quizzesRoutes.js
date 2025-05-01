@@ -9,7 +9,8 @@ const users = client.db("DevTalks").collection("Users");
 
 quizzes.createIndex(
     { "Date": 1 },
-    { expireAfterSeconds: 604800 }
+    { expireAfterSeconds: 86400 } // 1 day
+    // { expireAfterSeconds: 604800 } // 7 days
 )
 
 router.post("/create-quiz", async (req, res) => {
@@ -40,11 +41,6 @@ router.post("/create-quiz", async (req, res) => {
     //!generate quiz with the help of ai
     const createQuizResponse = await generateQuizQuestions(quizData);
     if (createQuizResponse) {
-        const insertDateInUserDB = users.updateOne(
-            { email: quizData.email },
-            { $set: { lastQuizDate: new Date().toISOString() } },
-            { upsert: true }
-        )
         const QuizSaveInDB = await quizzes.insertOne(createQuizResponse)
         if(QuizSaveInDB.insertedId){
             const findQuiz = await quizzes.findOne({ _id: new ObjectId(QuizSaveInDB.insertedId) })

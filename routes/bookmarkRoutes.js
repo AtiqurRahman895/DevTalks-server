@@ -15,7 +15,7 @@ router.post("/addToBookmark", verifyToken, isUserOnDB, async (req, res) => {
 
   try {
     const result = await bookmarks.insertOne(credentials)
-    console.log(`A item was added to bookmark with the _id: ${result.insertedId}`);
+    // console.log(`A item was added to bookmark with the _id: ${result.insertedId}`);
     res.status(201).send(`Item added to bookmark`);
   } catch (error) {
     console.error(`Failed to add item to bookmark: ${error}`);

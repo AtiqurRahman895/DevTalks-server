@@ -14,7 +14,7 @@ router.post("/creatResponse", verifyToken, isUserOnDB, async (req, res) => {
 
   try {
     const result = await responses.insertOne(credentials)
-    console.log(`A response was inserted with the _id: ${result.insertedId}`);
+    // console.log(`A response was inserted with the _id: ${result.insertedId}`);
     res.status(201).send(`response added`);
   } catch (error) {
     console.error(`Failed to add response: ${error}`);

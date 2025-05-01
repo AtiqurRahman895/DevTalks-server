@@ -60,7 +60,6 @@ router.get("/users", async (req, res) => {
 // get specific user
 router.get("/user/:email", async (req, res) => {
   const email = req.params.email;
-  // console.log(email)
   try {
     const result = await users.findOne({ email })
     res.status(200).json(result)
@@ -69,24 +68,6 @@ router.get("/user/:email", async (req, res) => {
     res.status(500).send("Failed to find user.");
   }
 })
-
-// get data for profile
-router.get("/profile/:email", async (req, res) => {
-  const userEmail = req.params.email;
-
-  try {
-    if (!userEmail || userEmail.trim() === "") {
-      return res.status(400).json({ error: "User not found" });
-    }
-    const result = await users.findOne({ email: userEmail })
-    // console.log(result)
-    res.status(200).json(result)
-  } catch (error) {
-    console.error(`Failed to find user: ${error}`);
-    res.status(500).send("Failed to find user.");
-  }
-})
-
 
 // add details for profile 
 router.put("/user/:email", async (req, res) => {

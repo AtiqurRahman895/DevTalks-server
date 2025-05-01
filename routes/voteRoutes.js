@@ -14,7 +14,7 @@ router.post("/creatVotes", verifyToken, isUserOnDB, async (req, res) => {
 
   try {
     const result = await votes.insertOne(credentials)
-    console.log(`A vote was inserted with the _id: ${result.insertedId}`);
+    // console.log(`A vote was inserted with the _id: ${result.insertedId}`);
     res.status(201).send(`vote added`);
   } catch (error) {
     console.error(`Failed to add vote: ${error}`);
@@ -26,7 +26,7 @@ router.delete("/deleteVotes", verifyToken, isUserOnDB, async (req, res) => {
     let { query={} } = req.query;
     try {
       const result = await votes.deleteOne(query)
-      console.log(`${result.deletedCount} vote was deleted.`);
+      // console.log(`${result.deletedCount} vote was deleted.`);
       res.status(201).send(`vote deleted`);
     } catch (error) {
       console.error(`Failed to delete vote: ${error}`);
