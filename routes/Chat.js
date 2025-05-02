@@ -22,15 +22,22 @@ const onlineUsers = new Map();
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
-  socket.on('join', (username) => {
-    console.log(`${username} joined`);
-    socket.username = username;
-    onlineUsers.set(username, socket.id);
-    io.emit('user list', Array.from(onlineUsers.keys()));
+  socket.on('join', (user) => {
+    if (!user?.email || !user?.displayName) return;
+    console.log(`${user.displayName} joined`);
+    socket.userEmail = user.email;
+    onlineUsers.set(user.email, {
+      socketId: socket.id,
+      displayName: user.displayName,
+    });
+    io.emit('user list', Array.from(onlineUsers.entries()).map(([email, data]) => ({
+      email,
+      displayName: data.displayName
+    })));
   });
 
   socket.on('private message', ({ to, message }) => {
-    console.log(`Private message from ${socket.username} to ${to}: ${message}`);
+    console.log(`Private message from ${socket.user} to ${to}: ${message}`);
     const targetSocketId = onlineUsers.get(to);
     if (targetSocketId) {
       io.to(targetSocketId).emit('private message', {
