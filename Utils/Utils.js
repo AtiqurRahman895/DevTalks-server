@@ -50,7 +50,6 @@ const generateQuizQuestions = async (quizData) => {
                         {
                             "topic": "${quizData.topic.toUpperCase()}",
                             "difficulty": "${quizData.difficulty.toUpperCase()}",
-                            "Date": "${new Date().toISOString()}",
                             "questions": [
                                 {
                                     "id": "1",

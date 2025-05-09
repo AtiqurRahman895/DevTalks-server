@@ -118,80 +118,79 @@ router.put("/user/:email", async (req, res) => {
 
 
 
-router.post("/user-answer", async (req, res) => {
-  const { email, quizId, userAnswers } = req.body;
+router.post("/user-answer", verifyToken, async (req, res) => {
+  const { quizId, userAnswers } = req.body;
+  const {email} = req.headers
 
-  const user = await users.findOne({ email: email })
+  try {
 
-  //!ToDo: if user is undefined send error status
-  if (!user) {
-    throw new Error(`User Not found`);
-  }
+    const user = await users.findOne({ email: email })
 
-  let userQuiz = await quizzes.findOne({ _id: new ObjectId(quizId) });
-  const answers = userAnswers.map((userAnswer) => {
-    const question = userQuiz.questions.find((q) => q.id === userAnswer.questionId);
-
-    if (!question) {
-      throw new Error(`❌ Question with ID "${userAnswer.questionId}" not found in the quiz.`);
+    if (!user) {
+      return res.status(403).send({ message: "Forbidden Access!" });
     }
 
-    const userSelect = userAnswer.userSelect.toUpperCase();
-    const isCorrect = userSelect === question.correctAnswer;
+    let userQuiz = await quizzes.findOne({ _id: new ObjectId(quizId) });
+    const answers = userAnswers.map((userAnswer) => {
+      const question = userQuiz.questions.find((q) => q.id === userAnswer.questionId);
 
-    return {
-      questionId: userAnswer.questionId,
-      question: question.question,
-      userSelect,
-      correctAnswer: question.correctAnswer,
-      isCorrect,
-      explanation: isCorrect ? null : question.explanation,
-    };
-  });
-
-
-  //Calculate score
-  const score = answers.filter((a) => a.isCorrect).length;
-  const totalQuestions = userQuiz.questions.length;
-
-  const quizDate = new Date(new Date().toISOString());
-  userQuiz.topic=userQuiz.topic.trim().toUpperCase()
-
-  //Save to userAnswers
-  const userAnswerDoc = {
-    quizId,
-    topic: userQuiz.topic,
-    difficulty: userQuiz.difficulty,
-    quizDate,
-    answers,
-    score,
-    totalQuestions
-  };
-
-
-  // const now = new Date();
-  // const existingUser = await users.findOne({ email });
-  // let dailyStreak = 1;
-  // if (existingUser && existingUser.lastQuizDate) {
-  //   const lastQuiz = new Date(existingUser.answers.quizDate);
-  //   const daysSinceLastQuiz = (now - lastQuiz) / (1000 * 60 * 60 * 24);
-  //   if (daysSinceLastQuiz <= 14) {
-  //     dailyStreak = (existingUser.dailyStreak || 0) + 1; // Increment if within 14 days
-  //   }
-  // }
-
-  // Update users collection
-  const result = await users.updateOne(
-    { email },
-    {
-      $set: {
-        answers: userAnswerDoc,
-        // dailyStreak,
+      if (!question) {
+        throw new Error(`❌ Question with ID "${userAnswer.questionId}" not found in the quiz.`);
       }
-    },
-    { upsert: true }
-  );
-  res.send(user)
+
+      const userSelect = userAnswer.userSelect.toUpperCase();
+      const isCorrect = userSelect === question.correctAnswer;
+      const formattedUserSelect = `${userSelect}. ${question.optionText}`;
+
+
+      return {
+        questionId: userAnswer.questionId,
+        question: question.question,
+        userSelect,
+        formattedUserSelect,
+        correctAnswer: question.correctAnswer,
+        isCorrect,
+        explanation: isCorrect ? null : question.explanation,
+      };
+    });
+
+
+    //Calculate score
+    const score = answers.filter((a) => a.isCorrect).length;
+    const totalQuestions = userQuiz.questions.length;
+
+    const quizDate = new Date(new Date().toISOString());
+    userQuiz.topic=userQuiz.topic.trim().toUpperCase()
+
+    //Save to userAnswers
+    const userAnswerDoc = {
+      quizId,
+      topic: userQuiz.topic,
+      difficulty: userQuiz.difficulty,
+      quizDate,
+      answers,
+      score,
+      totalQuestions
+    };
+
+    // Update users collection
+    const result = await users.updateOne(
+      { email },
+      {
+        $set: {
+          answers: userAnswerDoc,
+        }
+      },
+      { upsert: false }
+    );
+    res.status(200).json(result)
+
+  } catch (error) {
+    console.error('Error saving quiz answers:', error);
+    return res.status(500).send({ message: 'Unable to save quiz answers!' });
+  }
+
+
 })
 
 router.post("/user-feedback/:email", async (req, res) => {
